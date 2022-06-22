@@ -1,0 +1,26 @@
+<resources>
+    <style name="AppThemeSplashScreen" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">#009933</item>
+        <item name="colorPrimaryDark">@color/cardview_shadow_end_color</item>
+        <item name="colorAccent">@android:color/darker_gray</item>
+    </style>
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">#008844</item>
+        <item name="colorPrimaryDark">@color/cardview_light_background</item>
+        <item name="colorAccent">@android:color/holo_blue_dark</item>
+    </style>
+
+    <style name="BackgroundLayout">
+        <item name="android:background">#777777</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+    </style>
+
+    <style name="TextViewChild">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+    </style>
+
+</resources>
