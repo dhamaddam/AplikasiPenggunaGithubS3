@@ -4,39 +4,50 @@ import android.app.SearchManager
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SearchView
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dhamaddam.aplikasipenggunagithubs3.BuildConfig
 import com.dhamaddam.aplikasipenggunagithubs3.R
-import com.dhamaddam.aplikasipenggunagithubs3.databinding.ActivityMainBinding
-import com.dhamaddam.aplikasipenggunagithubs3.view.adapter.UserListAdapter
-import com.dhamaddam.aplikasipenggunagithubs3.view.adapter.ViewModelFactory
-import com.dhamaddam.aplikasipenggunagithubs3.view.model.UserViewModel
-
 import com.dhamaddam.aplikasipenggunagithubs3.data.Result
 import com.dhamaddam.aplikasipenggunagithubs3.data.remote.response.GithubResponseItem
 import com.dhamaddam.aplikasipenggunagithubs3.data.remote.response.SearchUserGithubResponse
 import com.dhamaddam.aplikasipenggunagithubs3.data.remote.retrofit.ApiConfig
+import com.dhamaddam.aplikasipenggunagithubs3.databinding.ActivityMainBinding
+import com.dhamaddam.aplikasipenggunagithubs3.utils.SettingPreferences
 import com.dhamaddam.aplikasipenggunagithubs3.view.adapter.ListUserAdapter
+import com.dhamaddam.aplikasipenggunagithubs3.view.adapter.UserListAdapter
+import com.dhamaddam.aplikasipenggunagithubs3.view.adapter.ViewModeThemeFactory
+import com.dhamaddam.aplikasipenggunagithubs3.view.adapter.ViewModelFactory
+import com.dhamaddam.aplikasipenggunagithubs3.view.model.UserViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class MainActivity : AppCompatActivity() {
 
+
+    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
+
     private var _activityMainBinding: ActivityMainBinding? = null
     private val binding get() = _activityMainBinding
 
+//    val themeSetting: Flow<Boolean> = ThemeViewModel.getThemeSetting()
+
     private lateinit var adapter: UserListAdapter
     private var list: ArrayList<GithubResponseItem> = arrayListOf()
+    private lateinit var mainViewModel: UserViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,12 +57,12 @@ class MainActivity : AppCompatActivity() {
 
         val userViewModel = obtainViewModel(this@MainActivity)
 
-
-
+        setViewModel()
         adapter = UserListAdapter()
 
         userViewModel.getUser().observe(this, { result ->
             if (result != null) {
+                darkModeCheck()
                 when (result) {
                     is Result.Loading -> {
                         binding?.progressBar?.visibility = View.VISIBLE
@@ -59,6 +70,8 @@ class MainActivity : AppCompatActivity() {
                     is Result.Success -> {
                         binding?.progressBar?.visibility = View.GONE
                         val userData = result.data
+
+
                         adapter.setListUser(userData)
                     }
                     is Result.Error -> {
@@ -76,6 +89,18 @@ class MainActivity : AppCompatActivity() {
         binding?.rvGithuber?.layoutManager = LinearLayoutManager(this)
         binding?.rvGithuber?.setHasFixedSize(true)
         binding?.rvGithuber?.adapter = adapter
+
+    }
+
+    private fun setViewModel(){
+        val pref = SettingPreferences.getInstance(dataStore)
+        mainViewModel =  ViewModelProvider(this, ViewModeThemeFactory(pref))[UserViewModel::class.java]
+    }
+    private fun darkModeCheck(){
+        mainViewModel.getThemeSettings().observe(this@MainActivity,{isDarkModeActive ->
+            if (isDarkModeActive) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            else AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        })
 
     }
 
@@ -141,7 +166,7 @@ class MainActivity : AppCompatActivity() {
     private fun showSelectedUser(user: GithubResponseItem) {
         val startGithubUserDetails = Intent(this@MainActivity, GithubUserDetailsActivity::class.java)
         startGithubUserDetails.putExtra(GithubUserDetailsActivity.EXTRA_USER, user.username)
-        startGithubUserDetails.putExtra(GithubUserDetailsActivity.EXTRA_USER_FAVORITE, user.gistsUrl)
+        startGithubUserDetails.putExtra(GithubUserDetailsActivity.EXTRA_USER_FAVORITE, false)
         startActivity(startGithubUserDetails)
     }
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -190,8 +215,8 @@ class MainActivity : AppCompatActivity() {
         FavoriteButton.setOnMenuItemClickListener ( object : MenuItem.OnMenuItemClickListener  {
             override fun onMenuItemClick(item: MenuItem?): Boolean {
 
-                val startGithubUserDetails = Intent(applicationContext, UserFavoriteActivity::class.java)
-                startActivity(startGithubUserDetails)
+                val startUserFavoriteActivity = Intent(applicationContext, UserFavoriteActivity::class.java)
+                startActivity(startUserFavoriteActivity)
 
                 return true
             }
@@ -215,5 +240,6 @@ class MainActivity : AppCompatActivity() {
 
         return true
     }
+
 }
 

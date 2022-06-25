@@ -1,20 +1,19 @@
 package com.dhamaddam.aplikasipenggunagithubs3.view
 
-import com.dhamaddam.aplikasipenggunagithubs3.R
-
 import android.content.ContentValues
 import android.content.ContentValues.TAG
-import androidx.appcompat.app.ActionBar
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.annotation.StringRes
+import androidx.appcompat.app.ActionBar
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.dhamaddam.aplikasipenggunagithubs3.BuildConfig
+import com.dhamaddam.aplikasipenggunagithubs3.R
 import com.dhamaddam.aplikasipenggunagithubs3.data.local.entity.UserEntity
 import com.dhamaddam.aplikasipenggunagithubs3.data.remote.response.DetailsItem
 import com.dhamaddam.aplikasipenggunagithubs3.data.remote.retrofit.ApiConfig
@@ -42,6 +41,7 @@ class GithubUserDetailsActivity : AppCompatActivity()   {
 
     private lateinit var sectionsPagerAdapter: SectionsPagerAdapter
 
+    private lateinit var userList  : ArrayList<UserEntity>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,20 +52,24 @@ class GithubUserDetailsActivity : AppCompatActivity()   {
         isFavoriteFlagged = intent.getStringExtra(EXTRA_USER_FAVORITE).toBoolean()
         DetailsUserGithub(username)
 
+        Log.d(TAG, "isFavoriteFlagged from outside: "+ isFavoriteFlagged)
+
         setFavoriteStatus(isFavoriteFlagged)
 
         val userViewModel = obtainViewModel(this@GithubUserDetailsActivity)
 
-        favoriteUser = UserEntity(null,"","","",true)
+        favoriteUser = UserEntity(null,"dhamaddam","","",true)
+
+        userList = ArrayList<UserEntity>()
+
         binding.fabFavorite.setOnClickListener {
 
-            Log.d(TAG, "isFavoriteFlagged: "+ isFavoriteFlagged)
-
             if (!isFavoriteFlagged) {
-                userViewModel.saveUser(favoriteUser)
+                userViewModel.removeUserFavorite(username)
+                userViewModel.addUserFavorite(userList)
                 isFavoriteFlagged = !isFavoriteFlagged
                 setFavoriteStatus(isFavoriteFlagged)
-                Log.d(TAG, "isFavoriteFlagged: "+ isFavoriteFlagged)
+                Log.d(TAG, "!isFavoriteFlagged: "+ isFavoriteFlagged)
             } else {
                 favoriteUser.isfavorite = false
                 userViewModel.deleteUser(favoriteUser)
@@ -136,6 +140,8 @@ class GithubUserDetailsActivity : AppCompatActivity()   {
                             responseBody.avatarUrl,
                             true
                         )
+                        userList.add(favoriteUser)
+                        Log.d(TAG, "onResponse: isFavoriteFlagged "+responseBody)
 
                     }
                 } else {

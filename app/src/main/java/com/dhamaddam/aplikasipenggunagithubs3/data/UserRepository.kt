@@ -6,9 +6,10 @@ import com.dhamaddam.aplikasipenggunagithubs3.BuildConfig
 import com.dhamaddam.aplikasipenggunagithubs3.data.local.entity.UserEntity
 import com.dhamaddam.aplikasipenggunagithubs3.data.local.room.UserDao
 import com.dhamaddam.aplikasipenggunagithubs3.data.remote.response.GithubResponseItem
-import com.dhamaddam.aplikasipenggunagithubs3.data.remote.response.SearchUserGithubResponse
 import com.dhamaddam.aplikasipenggunagithubs3.data.remote.retrofit.ApiServices
 import com.dhamaddam.aplikasipenggunagithubs3.utils.AppExecutors
+import com.dhamaddam.aplikasipenggunagithubs3.utils.SettingPreferences
+import kotlinx.coroutines.flow.Flow
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -16,7 +17,8 @@ import retrofit2.Response
 class UserRepository private constructor(
     private val apiService: ApiServices,
     private val userDao: UserDao,
-    private val appExecutors: AppExecutors
+    private val appExecutors: AppExecutors,
+    private val preferenDS: SettingPreferences
 ) {
 
     private val result = MediatorLiveData<Result<List<UserEntity>>>()
@@ -73,6 +75,24 @@ class UserRepository private constructor(
         }
     }
 
+    fun AddUserFavorite (userList : ArrayList<UserEntity>){
+
+        appExecutors.diskIO.execute {
+            userDao.insertUser(userList)
+        }
+    }
+    fun RemoveUserFavorite (username : String){
+
+        appExecutors.diskIO.execute {
+            userDao.removeUser(username)
+        }
+    }
+
+    fun getThemeSetting(): Flow<Boolean> = preferenDS.getThemeSetting()
+
+    suspend fun saveThemeSetting(isDarkModeActive: Boolean) {
+        preferenDS.saveThemeSetting(isDarkModeActive)
+    }
 
     companion object {
         @Volatile
@@ -80,10 +100,11 @@ class UserRepository private constructor(
         fun getInstance(
             apiService: ApiServices,
             newsDao: UserDao,
-            appExecutors: AppExecutors
+            appExecutors: AppExecutors,
+            preferenDS : SettingPreferences
         ): UserRepository =
             instance ?: synchronized(this) {
-                instance ?: UserRepository(apiService, newsDao, appExecutors)
+                instance ?: UserRepository(apiService, newsDao, appExecutors, preferenDS)
             }.also { instance = it }
     }
 

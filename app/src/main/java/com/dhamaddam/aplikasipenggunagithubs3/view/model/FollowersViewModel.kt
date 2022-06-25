@@ -15,7 +15,9 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class FollowersViewModel: ViewModel()  {
+class FollowersViewModel : ViewModel()  {
+
+
     private var listFollowers = MutableLiveData<ArrayList<GithubResponseItem>>()
 
     fun setFollower(username: String, context: Context) {

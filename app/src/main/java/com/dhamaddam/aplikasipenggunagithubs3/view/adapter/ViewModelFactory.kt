@@ -1,11 +1,16 @@
 package com.dhamaddam.aplikasipenggunagithubs3.view.adapter
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.dhamaddam.aplikasipenggunagithubs3.data.UserRepository
 import com.dhamaddam.aplikasipenggunagithubs3.di.Injection
 import com.dhamaddam.aplikasipenggunagithubs3.view.model.UserViewModel
+
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 class ViewModelFactory private constructor(private val userRepository: UserRepository) :
     ViewModelProvider.NewInstanceFactory() {
@@ -22,7 +27,7 @@ class ViewModelFactory private constructor(private val userRepository: UserRepos
         private var instance: ViewModelFactory? = null
         fun getInstance(context: Context): ViewModelFactory =
             instance ?: synchronized(this) {
-                instance ?: ViewModelFactory(Injection.provideRepository(context))
+                instance ?: ViewModelFactory(Injection.provideRepository(context, context.dataStore))
             }.also { instance = it }
     }
 }

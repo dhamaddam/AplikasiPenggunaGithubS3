@@ -23,4 +23,7 @@ interface UserDao {
 
     @Query("SELECT EXISTS(SELECT * FROM users WHERE login = :username AND isfavorite = 1)")
     fun isUserFavorite(username: String): Boolean
+
+    @Query("DELETE FROM users WHERE login= :username AND isfavorite = 0")
+    fun removeUser(username: String)
 }

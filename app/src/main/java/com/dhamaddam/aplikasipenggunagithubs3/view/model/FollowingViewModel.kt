@@ -8,13 +8,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.dhamaddam.aplikasipenggunagithubs3.BuildConfig
+import com.dhamaddam.aplikasipenggunagithubs3.data.remote.response.GithubResponseItem
+import com.dhamaddam.aplikasipenggunagithubs3.data.remote.retrofit.ApiConfig
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import com.dhamaddam.aplikasipenggunagithubs3.data.remote.response.GithubResponseItem
-import com.dhamaddam.aplikasipenggunagithubs3.data.remote.retrofit.ApiConfig
 
-class FollowingViewModel: ViewModel()  {
+class FollowingViewModel : ViewModel()  {
+
+
     private var listFollowing = MutableLiveData<ArrayList<GithubResponseItem>>()
 
     fun setFollowing(username: String, context: Context) {

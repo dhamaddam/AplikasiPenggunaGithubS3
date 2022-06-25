@@ -8,6 +8,7 @@ import com.dhamaddam.aplikasipenggunagithubs3.utils.SettingPreferences
 import kotlinx.coroutines.launch
 
 class ThemeViewModel (private val pref: SettingPreferences) : ViewModel() {
+
     fun getThemeSettings(): LiveData<Boolean> {
         return pref.getThemeSetting().asLiveData()
     }
